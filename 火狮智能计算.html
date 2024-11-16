@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/huoshi111/huoshiyinyuelogo/main/huoshiyinyuelogo.png">
+    <title>火狮智能计算</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222222;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 600px;
+            height: 600px;
+            border-radius: 10px;
+            background-color: #474747;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-box {
+            height: 600px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            background-color: #373737;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background-color: #69e5a1;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #66bdac;
+            align-self: flex-start;
+            white-space: pre-wrap;
+        }
+
+        .input-container {
+            display: flex;
+        }
+
+        .input-box {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #55555565;
+            border-radius: 5px;
+            background-color: #17171765;
+            color: #fff;
+        }
+
+        .send-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            font-size: 16px;
+            border: none;
+            background-color: #555555;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .send-button:hover {
+            background-color: #2f2f2f;
+        }
+
+.help-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4a4a4a;
+    color: #bbbbbb;
+    border: none;
+    border-radius: 50%;
+    padding: 2px 8px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* 弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* 弹窗内容 */
+.modal-content {
+    position: relative;
+    margin: 10% auto;
+    padding: 20px;
+    background-color: #424242;
+    width: 50%;
+    max-width: 500px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 关闭按钮 */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 35px;
+    cursor: pointer;
+}
+
+/* 弹窗内部滚动区域 */
+.modal-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* 滚动条样式 */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background-color: #5c5c5c;
+    border-radius: 2px;
+}
+    </style>
+</head>
+<body>
+
+<button id="helpButton" class="help-button">?</button>
+
+<!-- 弹窗 -->
+<div id="helpModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div class="modal-body">
+            <h2 style="color: #bbbbbb;">火狮计算</h2>
+            <h3 style="color: #bbbbbb;">以下是一些例子:</h2>
+            <p style="color: #a7a7a7;">基本运算</p>
+            <p style="color: #a7a7a7;">5 + 3 × 2 <br> 10 ÷ 2 - 3 <br> 7 × 4 ÷ 2</p>
+            <p style="color: #a7a7a7;">百分比运算</p>
+            <p style="color: #a7a7a7;">100 - 10% <br> 200 + 15% <br> 50 ÷ 25% </p>
+            <p style="color: #a7a7a7;">一次方程</p>
+            <p style="color: #a7a7a7;">2x + 3 = 7 <br> 5x - 10 = 0 <br>2x + 6 = 0  <br> x - 10 = 5  <br> 5x - 10 = 0 </p>
+            <p style="color: #a7a7a7;">二次方程</p>
+            <p style="color: #a7a7a7;">x^2 - 5x + 6 = 0 <br> x^2 + 4x + 4 = 0 <br>  x^2 - 4x + 3 = 0 <br> x^2 + 5x + 6 = 0 <br>2x² - 4x + 1 = 5<br> x² + 4x + 4 = 0<br>x^2 + 4x +4 = 0<br>x^2 + 4x +2 = 0 <br><br> ^2 和 ² 是平方 </p>
+            <p style="color: #a7a7a7;">三次方程</p>
+            <p style="color: #a7a7a7;">  x³ - 6x²+11x-6=0 <br> x³+2x²-5x-6=0 <br><br> 立方 ³ 和 ^3</p>
+            <p style="color: #a7a7a7;">四次方程</p>
+            <p style="color: #a7a7a7;">2x^4 - 4x^3 + 3x^2 - 2x + 1 = 0 <br><br> 2x^4 - 6x^3 + 3x^2 - 2x + 1 = 0 <br><br> x^4 - 5x^3 + 5x^2 - 5x + 1 = 0 <br><br> x^4 - 5x^3 + 6x^2 - 4x + 1 = 0</p>
+            <p style="color: #a7a7a7;">平方根和PI</p>
+            <p style="color: #a7a7a7;">√(16) <br><br> √(π) <br> π × 5² = <br> √(25) + √(9) = </p>
+
+            <img src="https://github.com/huoshi111/huoshijisuan/blob/main/huoshijisuan.png?raw=true" alt="huoshi火狮计算" style="width: 100%; height: auto;">
+        </div>
+    </div>
+</div>
+    <div class="chat-container">
+        <h1 style="color: #bbbbbb;"> 火狮智能计算 </h1>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="input-box" class="input-box" placeholder="请输入数学问题或方程..." onkeypress="handleKeyPress(event)">
+            <button class="send-button" onclick="sendMessage()">发送</button>
+        </div>
+        <center>
+            <p style="color: #bbbbbb;">火狮 智能计算 可能会出错，请查看你的内容是否合理。</p>
+        </center>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const inputBox = document.getElementById('input-box');
+            let userMessage = inputBox.value.trim();
+
+            if (userMessage === '') return;
+
+            // 显示用户的消息在右边
+            addMessage(userMessage, 'user-message');
+            inputBox.value = '';  // 清空输入框
+
+            // 处理数学符号并计算
+            userMessage = preprocessInput(userMessage);
+
+            // 解析和计算数学题或方程
+            try {
+                const result = handleInput(userMessage);  // 解析和计算
+                addTypingEffect(result, 'bot-message');
+            } catch (error) {
+                addTypingEffect("无法解析输入，请输入有效的数学表达式或方程。", 'bot-message');
+            }
+        }
+
+function preprocessInput(input) {
+    // 将自定义符号转换为JavaScript的运算符，并处理百分比
+    return input
+        .replace(/×/g, '*')  // 将 × 替换为 *
+        .replace(/÷/g, '/')  // 将 ÷ 替换为 /
+        .replace(/·/g, '*')  // 将 · 替换为 *
+        .replace(/:/g, '/')  // 将 : 替换为 /
+        .replace(/π/g, 'Math.PI')  // 将 π 替换为 Math.PI
+        .replace(/√\(/g, 'Math.sqrt(')  // 将 √( 替换为 Math.sqrt(
+                    .replace(/(\d+|\))²/g, '$1**2')  // 将数字或括号后的 ² 替换为 **2
+        // 正确处理百分比，确保百分比是相对于前面的数字计算
+        .replace(/(\d+)\s*([+\-])\s*(\d+)%/g, (match, p1, p2, p3) => `${p1} ${p2} (${p1} * ${p3} * 0.01)`)
+        .replace(/(\d+)%/g, '($1*0.01)')  // 处理剩余的百分号
+        .replace(/=$/, '');  // 移除等号结尾
+}
+
+
+        function handleInput(input) {
+            // 首先处理一次方程和二次方程
+            const equationResult = solveEquation(input);
+            if (equationResult) {
+                return equationResult;
+            }
+
+            // 否则处理普通数学计算
+            try {
+                const result = eval(input);  // 计算数学表达式
+                return `结果是：${result}`;
+            } catch (error) {
+                return "无法计算，请输入有效的数学表达式。";
+            }
+        }
+
+
+function solveEquation(equation) {
+    equation = equation.replace(/\s+/g, ''); // 去除空格
+    equation = equation.replace(/²/g, '^2'); // 将 ² 替换为 ^2
+    equation = equation.replace(/³/g, '^3'); // 将 ³ 替换为 ^3
+    equation = equation.replace(/⁴/g, '^4'); // 将 ⁴ 替换为 ^4
+
+    // 四次方程 ax^4 + bx^3 + cx^2 + dx + e = 0
+    const quarticEquationRegex = /^([-+]?\d*)x\^4([-+]?\d*)x\^3([-+]?\d*)x\^2([-+]?\d*)x([-+]?\d+)?=0$/;
+    if (quarticEquationRegex.test(equation)) {
+        const matches = equation.match(quarticEquationRegex);
+        const a = matches[1] === '' || matches[1] === '+' ? 1 : (matches[1] === '-' ? -1 : parseInt(matches[1]));
+        const b = matches[2] === '' || matches[2] === '+' ? 1 : (matches[2] === '-' ? -1 : parseInt(matches[2]));
+        const c = matches[3] === '' || matches[3] === '+' ? 1 : (matches[3] === '-' ? -1 : parseInt(matches[3]));
+        const d = matches[4] === '' || matches[4] === '+' ? 1 : (matches[4] === '-' ? -1 : parseInt(matches[4]));
+        const e = matches[5] ? parseInt(matches[5]) : 0;
+
+        const roots = findQuarticRoots(a, b, c, d, e);
+        return `方程 ${equation} 的解是：${roots.join(', ')}`;
+    }
+
+    // 三次方程 ax^3 + bx^2 + cx + d = 0
+    const cubicEquationRegex = /^([-+]?\d*)x\^3([-+]?\d*)x\^2([-+]?\d*)x([-+]?\d+)?=0$/;
+    if (cubicEquationRegex.test(equation)) {
+        const matches = equation.match(cubicEquationRegex);
+        const a = matches[1] === '' || matches[1] === '+' ? 1 : (matches[1] === '-' ? -1 : parseInt(matches[1]));
+        const b = matches[2] === '' || matches[2] === '+' ? 1 : (matches[2] === '-' ? -1 : parseInt(matches[2]));
+        const c = matches[3] === '' || matches[3] === '+' ? 1 : (matches[3] === '-' ? -1 : parseInt(matches[3]));
+        const d = matches[4] ? parseInt(matches[4]) : 0;
+
+        const roots = findCubicRoots(a, b, c, d);
+        return `方程 ${equation} 的解是：${roots.join(', ')}`;
+    }
+
+    // 二次方程 ax² + bx + c = 0
+    const quadraticEquationRegex = /^([-+]?\d*)x\^2([-+]?\d*)x([-+]?\d+)?=0$/;
+    if (quadraticEquationRegex.test(equation)) {
+        const matches = equation.match(quadraticEquationRegex);
+        const a = matches[1] === '' || matches[1] === '+' ? 1 : (matches[1] === '-' ? -1 : parseInt(matches[1]));
+        const b = matches[2] === '' || matches[2] === '+' ? 1 : (matches[2] === '-' ? -1 : parseInt(matches[2]));
+        const c = matches[3] ? parseInt(matches[3]) : 0;
+        const discriminant = b * b - 4 * a * c;
+
+        if (discriminant > 0) {
+            const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+            const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+            return `方程 ${equation} 的解是：x1 = ${x1}, x2 = ${x2}`;
+        } else if (discriminant === 0) {
+            const x = -b / (2 * a);
+            return `方程 ${equation} 有一个解：x = ${x}`;
+        } else {
+            return `方程 ${equation} 无实数解。`;
+        }
+    }
+
+    // 一次方程 ax + b = c
+    const linearEquationRegex = /^([-+]?\d*)x([-+]?\d+)?=([-+]?\d+)$/;
+    if (linearEquationRegex.test(equation)) {
+        const matches = equation.match(linearEquationRegex);
+        const a = matches[1] === '' || matches[1] === '+' ? 1 : (matches[1] === '-' ? -1 : parseInt(matches[1]));
+        const b = matches[2] ? parseInt(matches[2]) : 0;
+        const c = matches[3] ? parseInt(matches[3]) : 0;
+        const x = (c - b) / a;
+        return `方程 ${equation} 的解是：x = ${x}`;
+    }
+
+    // 简单形式：x + b = c
+    const simpleEquationRegex = /^x([-+]?\d+)?=([-+]?\d+)$/;
+    if (simpleEquationRegex.test(equation)) {
+        const matches = equation.match(simpleEquationRegex);
+        const b = matches[1] ? parseInt(matches[1]) : 0;
+        const c = matches[2] ? parseInt(matches[2]) : 0;
+        const x = c - b;
+        return `方程 ${equation} 的解是：x = ${x}`;
+    }
+
+    return null; // 无法解析方程
+}
+
+// 四次方程求根函数
+function findQuarticRoots(a, b, c, d, e) {
+    // 使用数值方法来找到四次方程的近似根
+    const roots = new Set(); // 使用 Set 来避免重复根
+    const f = (x) => a * x ** 4 + b * x ** 3 + c * x ** 2 + d * x + e;
+
+    const findRoot = (f, x0) => {
+        let x = x0;
+        for (let i = 0; i < 100; i++) {
+            const fx = f(x);
+            const dfx = 4 * a * x ** 3 + 3 * b * x ** 2 + 2 * c * x + d; // 一阶导数
+            if (Math.abs(dfx) < 1e-10) break; // 避免除以零
+            x -= fx / dfx;
+            if (Math.abs(fx) < 1e-10) break; // 接近零，认为找到根
+        }
+        return x;
+    };
+
+    for (let i = -100; i <= 100; i++) {
+        const root = findRoot(f, i);
+        let isClose = false;
+        for (let r of roots) {
+            if (Math.abs(r - root) < 1e-4) {
+                isClose = true;
+                break;
+            }
+        }
+        if (!isClose && Math.abs(f(root)) < 1e-10) {
+            roots.add(root);
+        }
+    }
+
+    return Array.from(roots); // 返回找到的根
+}
+
+// 三次方程求根函数
+function findCubicRoots(a, b, c, d) {
+    const roots = new Set();
+    const f = (x) => a * x ** 3 + b * x ** 2 + c * x + d;
+
+    const findRoot = (f, x0) => {
+        let x = x0;
+        for (let i = 0; i < 100; i++) {
+            const fx = f(x);
+            const dfx = 3 * a * x ** 2 + 2 * b * x + c;
+            if (Math.abs(dfx) < 1e-10) break;
+            x -= fx / dfx;
+            if (Math.abs(fx) < 1e-10) break;
+        }
+        return x;
+    };
+
+    for (let i = -100; i <= 100; i++) {
+        const root = findRoot(f, i);
+        let isClose = false;
+        for (let r of roots) {
+            if (Math.abs(r - root) < 1e-4) {
+                isClose = true;
+                break;
+            }
+        }
+        if (!isClose && Math.abs(f(root)) < 1e-10) {
+            roots.add(root);
+        }
+    }
+
+    return Array.from(roots);
+}
+
+
+
+        function addMessage(text, className) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;  // 自动滚动到底部
+        }
+
+        function addTypingEffect(text, className) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            chatBox.appendChild(messageDiv);
+
+            let index = 0;
+            const typingInterval = setInterval(() => {
+                if (index < text.length) {
+                    messageDiv.textContent += text[index];
+                    index++;
+                    chatBox.scrollTop = chatBox.scrollHeight;  // 自动滚动
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 50);  // 打字效果速度
+        }
+
+        // 监听回车键按下事件
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();  // 按下 Enter 键发送消息
+            }
+        }
+    </script>
+
+<script>
+// 获取元素
+const helpButton = document.getElementById('helpButton');
+const helpModal = document.getElementById('helpModal');
+const closeButton = document.querySelector('.close-button');
+
+// 点击问号按钮显示弹窗
+helpButton.onclick = function() {
+    helpModal.style.display = 'block';
+}
+
+// 点击关闭按钮隐藏弹窗
+closeButton.onclick = function() {
+    helpModal.style.display = 'none';
+}
+
+// 点击窗口外部隐藏弹窗
+window.onclick = function(event) {
+    if (event.target === helpModal) {
+        helpModal.style.display = 'none';
+    }
+}
+
+</script>
+
+</body>
+</html>
